@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package physics_tools_nanoaod.latentfeatures;
+
+// Minimal wire-compatible subset of the ONNX protobuf. Unknown fields are
+// retained by protobuf, so the complete model remains untouched apart from
+// the requested GraphProto outputs.
+message ValueInfoProto {
+  string name = 1;
+}
+
+message GraphProto {
+  repeated ValueInfoProto output = 12;
+}
+
+message ModelProto {
+  GraphProto graph = 7;
+}

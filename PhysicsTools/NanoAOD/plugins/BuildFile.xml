@@ -38,6 +38,25 @@
   <use name="roottmva"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="latentfeatures/*.cc" name="PhysicsToolsNanoAODLatentFeaturesPlugins">
+  <use name="DataFormats/BTauReco"/>
+  <use name="DataFormats/Candidate"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/NanoAOD"/>
+  <use name="DataFormats/PatCandidates"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="PhysicsTools/PatAlgos"/>
+  <use name="protobuf"/>
+  <use name="onnxruntime"/>
+  <use name="RecoBTag/FeatureTools"/>
+  <use name="RecoBTag/ONNXRuntime"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 <!-- Disable RNuple plugin: https://github.com/cms-sw/cmsdist/pull/9451#issuecomment-2393861542
 <library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
   <use name="rootntuple"/>
