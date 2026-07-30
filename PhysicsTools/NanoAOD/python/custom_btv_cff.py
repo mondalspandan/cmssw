@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import Var
-from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData
+from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData, finalJetsPuppi
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable, subJetTable
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import addToProcessAndTask, getPatAlgosToolsTask
@@ -763,7 +763,7 @@ def BTVCustomNanoAOD_LatentFeatures(process, CLS=True, MLP=True, InputEncoder=Tr
         CLS=cms.bool(CLS),
         MLP=cms.bool(MLP),
         InputEncoder=cms.bool(InputEncoder),
-        jet_cut=cms.string("pt > 15"),
+        jet_cut=finalJetsPuppi.cut,
     )
     if not getPatAlgosToolsTask(process).replace(old, new):
         raise RuntimeError("The positive AK4 UParT producer was not found in patAlgosToolsTask")

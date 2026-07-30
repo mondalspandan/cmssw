@@ -36,7 +36,7 @@ using JetTagCollection = reco::JetTagCollection;
 using FloatArrays = std::vector<std::vector<float>>;
 
 constexpr char kEncoderOutput[] = "/Encoder/layers.5/Add_1_output_0";
-constexpr char kCLSOutput[] = "/CLS_EncoderLayer2/Add_1_output_0";
+constexpr char kCLSOutput[] = "/cls_norm/Mul_1_output_0";
 constexpr char kLinearOutput[] = "/Linear/Gemm_output_0";
 constexpr char kIndexProduct[] = "UParTLatentTable";
 constexpr char kCLSProduct[] = "UParTCLSValuesTable";
@@ -97,9 +97,7 @@ std::vector<char> addGraphOutputs(const std::string& path, const std::vector<std
 }
 
 Ort::SessionOptions makeSessionOptions() {
-  Ort::SessionOptions options;
-  options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
-  return options;
+  return cms::Ort::ONNXRuntime::defaultSessionOptions();
 }
 
 TensorResult copyTensor(Ort::Value& output) {
@@ -141,29 +139,34 @@ void appendValues(const TensorResult& tensor,
   checkedSize(values.size(), name);
 }
 
-std::size_t validateFixedVector(const TensorResult& tensor, const char* name) {
-  if (tensor.shape.empty() || tensor.shape.back() <= 0)
-    throw cms::Exception("LatentFeaturesOutput") << name << " output has no resolved final dimension";
-  std::size_t leading = 1;
-  for (std::size_t i = 0; i + 1 < tensor.shape.size(); ++i) {
-    if (tensor.shape[i] <= 0 || static_cast<std::size_t>(tensor.shape[i]) > std::numeric_limits<std::size_t>::max() / leading)
-      throw cms::Exception("LatentFeaturesOutput") << name << " output has an invalid shape";
-    leading *= static_cast<std::size_t>(tensor.shape[i]);
+std::string shapeString(const std::vector<int64_t>& shape) {
+  std::string result = "[";
+  for (std::size_t i = 0; i < shape.size(); ++i) {
+    if (i != 0)
+      result += ", ";
+    result += std::to_string(shape[i]);
   }
-  const auto width = static_cast<std::size_t>(tensor.shape.back());
-  if (leading != 1 || tensor.values.size() != width)
-    throw cms::Exception("LatentFeaturesOutput") << name << " output is not one fixed-length vector: shape "
-                                                   << tensor.shape.size() << "D with " << tensor.values.size()
-                                                   << " values";
-  return width;
+  return result + "]";
+}
+
+void validateCLS(const TensorResult& tensor) {
+  const std::vector<int64_t> expected{1, 192};
+  if (tensor.shape != expected)
+    throw cms::Exception("LatentFeaturesOutput") << "Expected CLS output shape [1, 192], got "
+                                                   << shapeString(tensor.shape);
+}
+
+void validateMLP(const TensorResult& tensor) {
+  const std::vector<int64_t> expected{1, 24};
+  if (tensor.shape != expected)
+    throw cms::Exception("LatentFeaturesOutput") << "Expected MLP output shape [1, 24], got "
+                                                   << shapeString(tensor.shape);
 }
 
 void validateEncoder(const TensorResult& tensor) {
-  if (tensor.shape.size() < 2 || tensor.shape.front() != 1 || tensor.shape.back() <= 0)
-    throw cms::Exception("LatentFeaturesOutput") << "Expected encoder shape [1, ..., width]";
-  const auto width = static_cast<std::size_t>(tensor.shape.back());
-  if (tensor.values.size() % width != 0)
-    throw cms::Exception("LatentFeaturesOutput") << "Final particle encoder output is not divisible by its final dimension";
+  if (tensor.shape.size() != 3 || tensor.shape[0] != 1 || tensor.shape[1] <= 0 || tensor.shape[2] != 192)
+    throw cms::Exception("LatentFeaturesOutput") << "Expected encoder output shape [1, nTokens, 192], got "
+                                                   << shapeString(tensor.shape);
 }
 
 class LatentFeaturesSession {
@@ -327,9 +330,9 @@ void LatentFeaturesJetTagsProducer::produce(edm::Event& event, const edm::EventS
         throw cms::Exception("LatentFeaturesOutput") << "Expected " << flavNames_.size()
                                                        << " standard UParT outputs, got " << standardOutput.size();
       if (saveCLS_)
-        validateFixedVector(cls, "CLS");
+        validateCLS(cls);
       if (saveMLP_)
-        validateFixedVector(mlp, "MLP");
+        validateMLP(mlp);
       if (saveInputEncoder_)
         validateEncoder(encoder);
     }
@@ -384,7 +387,7 @@ void LatentFeaturesJetTagsProducer::putLatentTables(edm::Event& event, LatentTab
   }
   if (saveMLP_) {
     auto values = std::make_unique<nanoaod::FlatTable>(tables.mlpValues.size(), "JetUParTMLPValues", false);
-    values->addColumn<float>("value", tables.mlpValues, "Selected pre-softmax Linear/Gemm representation; width is read from ONNX Runtime shape metadata.", 10);
+    values->addColumn<float>("value", tables.mlpValues, "Selected 24-dimensional Linear/Gemm representation before its downstream transformation.", 10);
     event.put(std::move(values), kMLPProduct);
   }
   if (saveInputEncoder_) {
