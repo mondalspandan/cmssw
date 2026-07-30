@@ -52,6 +52,18 @@ extern GraphProtoDefaultTypeInternal _GraphProto_default_instance_;
 class ModelProto;
 struct ModelProtoDefaultTypeInternal;
 extern ModelProtoDefaultTypeInternal _ModelProto_default_instance_;
+class TensorShapeProto;
+struct TensorShapeProtoDefaultTypeInternal;
+extern TensorShapeProtoDefaultTypeInternal _TensorShapeProto_default_instance_;
+class TensorShapeProto_Dimension;
+struct TensorShapeProto_DimensionDefaultTypeInternal;
+extern TensorShapeProto_DimensionDefaultTypeInternal _TensorShapeProto_Dimension_default_instance_;
+class TensorTypeProto;
+struct TensorTypeProtoDefaultTypeInternal;
+extern TensorTypeProtoDefaultTypeInternal _TensorTypeProto_default_instance_;
+class TypeProto;
+struct TypeProtoDefaultTypeInternal;
+extern TypeProtoDefaultTypeInternal _TypeProto_default_instance_;
 class ValueInfoProto;
 struct ValueInfoProtoDefaultTypeInternal;
 extern ValueInfoProtoDefaultTypeInternal _ValueInfoProto_default_instance_;
@@ -60,12 +72,664 @@ extern ValueInfoProtoDefaultTypeInternal _ValueInfoProto_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::physics_tools_nanoaod::latentfeatures::GraphProto* Arena::CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::GraphProto>(Arena*);
 template<> ::physics_tools_nanoaod::latentfeatures::ModelProto* Arena::CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::ModelProto>(Arena*);
+template<> ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* Arena::CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::TensorShapeProto>(Arena*);
+template<> ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* Arena::CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension>(Arena*);
+template<> ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* Arena::CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::TensorTypeProto>(Arena*);
+template<> ::physics_tools_nanoaod::latentfeatures::TypeProto* Arena::CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::TypeProto>(Arena*);
 template<> ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* Arena::CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::ValueInfoProto>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace physics_tools_nanoaod {
 namespace latentfeatures {
 
 // ===================================================================
+
+class TensorShapeProto_Dimension final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension) */ {
+ public:
+  inline TensorShapeProto_Dimension() : TensorShapeProto_Dimension(nullptr) {}
+  ~TensorShapeProto_Dimension() override;
+  explicit PROTOBUF_CONSTEXPR TensorShapeProto_Dimension(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  TensorShapeProto_Dimension(const TensorShapeProto_Dimension& from);
+  TensorShapeProto_Dimension(TensorShapeProto_Dimension&& from) noexcept
+    : TensorShapeProto_Dimension() {
+    *this = ::std::move(from);
+  }
+
+  inline TensorShapeProto_Dimension& operator=(const TensorShapeProto_Dimension& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TensorShapeProto_Dimension& operator=(TensorShapeProto_Dimension&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const TensorShapeProto_Dimension& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const TensorShapeProto_Dimension* internal_default_instance() {
+    return reinterpret_cast<const TensorShapeProto_Dimension*>(
+               &_TensorShapeProto_Dimension_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(TensorShapeProto_Dimension& a, TensorShapeProto_Dimension& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TensorShapeProto_Dimension* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(TensorShapeProto_Dimension* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  TensorShapeProto_Dimension* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<TensorShapeProto_Dimension>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const TensorShapeProto_Dimension& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const TensorShapeProto_Dimension& from) {
+    TensorShapeProto_Dimension::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(TensorShapeProto_Dimension* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension";
+  }
+  protected:
+  explicit TensorShapeProto_Dimension(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDimParamFieldNumber = 2,
+    kDimValueFieldNumber = 1,
+  };
+  // string dim_param = 2;
+  void clear_dim_param();
+  const std::string& dim_param() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_dim_param(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_dim_param();
+  PROTOBUF_NODISCARD std::string* release_dim_param();
+  void set_allocated_dim_param(std::string* dim_param);
+  private:
+  const std::string& _internal_dim_param() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_dim_param(const std::string& value);
+  std::string* _internal_mutable_dim_param();
+  public:
+
+  // int64 dim_value = 1;
+  void clear_dim_value();
+  int64_t dim_value() const;
+  void set_dim_value(int64_t value);
+  private:
+  int64_t _internal_dim_value() const;
+  void _internal_set_dim_value(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr dim_param_;
+    int64_t dim_value_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_onnx_5fmodel_5feditor_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TensorShapeProto final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:physics_tools_nanoaod.latentfeatures.TensorShapeProto) */ {
+ public:
+  inline TensorShapeProto() : TensorShapeProto(nullptr) {}
+  ~TensorShapeProto() override;
+  explicit PROTOBUF_CONSTEXPR TensorShapeProto(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  TensorShapeProto(const TensorShapeProto& from);
+  TensorShapeProto(TensorShapeProto&& from) noexcept
+    : TensorShapeProto() {
+    *this = ::std::move(from);
+  }
+
+  inline TensorShapeProto& operator=(const TensorShapeProto& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TensorShapeProto& operator=(TensorShapeProto&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const TensorShapeProto& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const TensorShapeProto* internal_default_instance() {
+    return reinterpret_cast<const TensorShapeProto*>(
+               &_TensorShapeProto_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(TensorShapeProto& a, TensorShapeProto& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TensorShapeProto* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(TensorShapeProto* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  TensorShapeProto* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<TensorShapeProto>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const TensorShapeProto& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const TensorShapeProto& from) {
+    TensorShapeProto::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(TensorShapeProto* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "physics_tools_nanoaod.latentfeatures.TensorShapeProto";
+  }
+  protected:
+  explicit TensorShapeProto(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  typedef TensorShapeProto_Dimension Dimension;
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDimFieldNumber = 1,
+  };
+  // repeated .physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension dim = 1;
+  int dim_size() const;
+  private:
+  int _internal_dim_size() const;
+  public:
+  void clear_dim();
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* mutable_dim(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension >*
+      mutable_dim();
+  private:
+  const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension& _internal_dim(int index) const;
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* _internal_add_dim();
+  public:
+  const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension& dim(int index) const;
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* add_dim();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension >&
+      dim() const;
+
+  // @@protoc_insertion_point(class_scope:physics_tools_nanoaod.latentfeatures.TensorShapeProto)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension > dim_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_onnx_5fmodel_5feditor_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TensorTypeProto final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:physics_tools_nanoaod.latentfeatures.TensorTypeProto) */ {
+ public:
+  inline TensorTypeProto() : TensorTypeProto(nullptr) {}
+  ~TensorTypeProto() override;
+  explicit PROTOBUF_CONSTEXPR TensorTypeProto(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  TensorTypeProto(const TensorTypeProto& from);
+  TensorTypeProto(TensorTypeProto&& from) noexcept
+    : TensorTypeProto() {
+    *this = ::std::move(from);
+  }
+
+  inline TensorTypeProto& operator=(const TensorTypeProto& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TensorTypeProto& operator=(TensorTypeProto&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const TensorTypeProto& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const TensorTypeProto* internal_default_instance() {
+    return reinterpret_cast<const TensorTypeProto*>(
+               &_TensorTypeProto_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(TensorTypeProto& a, TensorTypeProto& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TensorTypeProto* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(TensorTypeProto* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  TensorTypeProto* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<TensorTypeProto>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const TensorTypeProto& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const TensorTypeProto& from) {
+    TensorTypeProto::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(TensorTypeProto* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "physics_tools_nanoaod.latentfeatures.TensorTypeProto";
+  }
+  protected:
+  explicit TensorTypeProto(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kShapeFieldNumber = 2,
+    kElemTypeFieldNumber = 1,
+  };
+  // .physics_tools_nanoaod.latentfeatures.TensorShapeProto shape = 2;
+  bool has_shape() const;
+  private:
+  bool _internal_has_shape() const;
+  public:
+  void clear_shape();
+  const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto& shape() const;
+  PROTOBUF_NODISCARD ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* release_shape();
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* mutable_shape();
+  void set_allocated_shape(::physics_tools_nanoaod::latentfeatures::TensorShapeProto* shape);
+  private:
+  const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto& _internal_shape() const;
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* _internal_mutable_shape();
+  public:
+  void unsafe_arena_set_allocated_shape(
+      ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* shape);
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* unsafe_arena_release_shape();
+
+  // int32 elem_type = 1;
+  void clear_elem_type();
+  int32_t elem_type() const;
+  void set_elem_type(int32_t value);
+  private:
+  int32_t _internal_elem_type() const;
+  void _internal_set_elem_type(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:physics_tools_nanoaod.latentfeatures.TensorTypeProto)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* shape_;
+    int32_t elem_type_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_onnx_5fmodel_5feditor_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TypeProto final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:physics_tools_nanoaod.latentfeatures.TypeProto) */ {
+ public:
+  inline TypeProto() : TypeProto(nullptr) {}
+  ~TypeProto() override;
+  explicit PROTOBUF_CONSTEXPR TypeProto(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  TypeProto(const TypeProto& from);
+  TypeProto(TypeProto&& from) noexcept
+    : TypeProto() {
+    *this = ::std::move(from);
+  }
+
+  inline TypeProto& operator=(const TypeProto& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TypeProto& operator=(TypeProto&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const TypeProto& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const TypeProto* internal_default_instance() {
+    return reinterpret_cast<const TypeProto*>(
+               &_TypeProto_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(TypeProto& a, TypeProto& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TypeProto* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(TypeProto* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  TypeProto* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<TypeProto>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const TypeProto& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const TypeProto& from) {
+    TypeProto::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(TypeProto* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "physics_tools_nanoaod.latentfeatures.TypeProto";
+  }
+  protected:
+  explicit TypeProto(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTensorTypeFieldNumber = 1,
+  };
+  // .physics_tools_nanoaod.latentfeatures.TensorTypeProto tensor_type = 1;
+  bool has_tensor_type() const;
+  private:
+  bool _internal_has_tensor_type() const;
+  public:
+  void clear_tensor_type();
+  const ::physics_tools_nanoaod::latentfeatures::TensorTypeProto& tensor_type() const;
+  PROTOBUF_NODISCARD ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* release_tensor_type();
+  ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* mutable_tensor_type();
+  void set_allocated_tensor_type(::physics_tools_nanoaod::latentfeatures::TensorTypeProto* tensor_type);
+  private:
+  const ::physics_tools_nanoaod::latentfeatures::TensorTypeProto& _internal_tensor_type() const;
+  ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* _internal_mutable_tensor_type();
+  public:
+  void unsafe_arena_set_allocated_tensor_type(
+      ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* tensor_type);
+  ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* unsafe_arena_release_tensor_type();
+
+  // @@protoc_insertion_point(class_scope:physics_tools_nanoaod.latentfeatures.TypeProto)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* tensor_type_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_onnx_5fmodel_5feditor_2eproto;
+};
+// -------------------------------------------------------------------
 
 class ValueInfoProto final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:physics_tools_nanoaod.latentfeatures.ValueInfoProto) */ {
@@ -115,7 +779,7 @@ class ValueInfoProto final :
                &_ValueInfoProto_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    0;
+    4;
 
   friend void swap(ValueInfoProto& a, ValueInfoProto& b) {
     a.Swap(&b);
@@ -189,6 +853,7 @@ class ValueInfoProto final :
 
   enum : int {
     kNameFieldNumber = 1,
+    kTypeFieldNumber = 2,
   };
   // string name = 1;
   void clear_name();
@@ -204,6 +869,24 @@ class ValueInfoProto final :
   std::string* _internal_mutable_name();
   public:
 
+  // .physics_tools_nanoaod.latentfeatures.TypeProto type = 2;
+  bool has_type() const;
+  private:
+  bool _internal_has_type() const;
+  public:
+  void clear_type();
+  const ::physics_tools_nanoaod::latentfeatures::TypeProto& type() const;
+  PROTOBUF_NODISCARD ::physics_tools_nanoaod::latentfeatures::TypeProto* release_type();
+  ::physics_tools_nanoaod::latentfeatures::TypeProto* mutable_type();
+  void set_allocated_type(::physics_tools_nanoaod::latentfeatures::TypeProto* type);
+  private:
+  const ::physics_tools_nanoaod::latentfeatures::TypeProto& _internal_type() const;
+  ::physics_tools_nanoaod::latentfeatures::TypeProto* _internal_mutable_type();
+  public:
+  void unsafe_arena_set_allocated_type(
+      ::physics_tools_nanoaod::latentfeatures::TypeProto* type);
+  ::physics_tools_nanoaod::latentfeatures::TypeProto* unsafe_arena_release_type();
+
   // @@protoc_insertion_point(class_scope:physics_tools_nanoaod.latentfeatures.ValueInfoProto)
  private:
   class _Internal;
@@ -213,6 +896,7 @@ class ValueInfoProto final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
+    ::physics_tools_nanoaod::latentfeatures::TypeProto* type_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -268,7 +952,7 @@ class GraphProto final :
                &_GraphProto_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    5;
 
   friend void swap(GraphProto& a, GraphProto& b) {
     a.Swap(&b);
@@ -342,6 +1026,7 @@ class GraphProto final :
 
   enum : int {
     kOutputFieldNumber = 12,
+    kValueInfoFieldNumber = 13,
   };
   // repeated .physics_tools_nanoaod.latentfeatures.ValueInfoProto output = 12;
   int output_size() const;
@@ -361,6 +1046,24 @@ class GraphProto final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::ValueInfoProto >&
       output() const;
 
+  // repeated .physics_tools_nanoaod.latentfeatures.ValueInfoProto value_info = 13;
+  int value_info_size() const;
+  private:
+  int _internal_value_info_size() const;
+  public:
+  void clear_value_info();
+  ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* mutable_value_info(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::ValueInfoProto >*
+      mutable_value_info();
+  private:
+  const ::physics_tools_nanoaod::latentfeatures::ValueInfoProto& _internal_value_info(int index) const;
+  ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* _internal_add_value_info();
+  public:
+  const ::physics_tools_nanoaod::latentfeatures::ValueInfoProto& value_info(int index) const;
+  ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* add_value_info();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::ValueInfoProto >&
+      value_info() const;
+
   // @@protoc_insertion_point(class_scope:physics_tools_nanoaod.latentfeatures.GraphProto)
  private:
   class _Internal;
@@ -370,6 +1073,7 @@ class GraphProto final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::ValueInfoProto > output_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::ValueInfoProto > value_info_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -425,7 +1129,7 @@ class ModelProto final :
                &_ModelProto_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    6;
 
   friend void swap(ModelProto& a, ModelProto& b) {
     a.Swap(&b);
@@ -541,6 +1245,332 @@ class ModelProto final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// TensorShapeProto_Dimension
+
+// int64 dim_value = 1;
+inline void TensorShapeProto_Dimension::clear_dim_value() {
+  _impl_.dim_value_ = int64_t{0};
+}
+inline int64_t TensorShapeProto_Dimension::_internal_dim_value() const {
+  return _impl_.dim_value_;
+}
+inline int64_t TensorShapeProto_Dimension::dim_value() const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension.dim_value)
+  return _internal_dim_value();
+}
+inline void TensorShapeProto_Dimension::_internal_set_dim_value(int64_t value) {
+
+  _impl_.dim_value_ = value;
+}
+inline void TensorShapeProto_Dimension::set_dim_value(int64_t value) {
+  _internal_set_dim_value(value);
+  // @@protoc_insertion_point(field_set:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension.dim_value)
+}
+
+// string dim_param = 2;
+inline void TensorShapeProto_Dimension::clear_dim_param() {
+  _impl_.dim_param_.ClearToEmpty();
+}
+inline const std::string& TensorShapeProto_Dimension::dim_param() const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension.dim_param)
+  return _internal_dim_param();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void TensorShapeProto_Dimension::set_dim_param(ArgT0&& arg0, ArgT... args) {
+
+ _impl_.dim_param_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension.dim_param)
+}
+inline std::string* TensorShapeProto_Dimension::mutable_dim_param() {
+  std::string* _s = _internal_mutable_dim_param();
+  // @@protoc_insertion_point(field_mutable:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension.dim_param)
+  return _s;
+}
+inline const std::string& TensorShapeProto_Dimension::_internal_dim_param() const {
+  return _impl_.dim_param_.Get();
+}
+inline void TensorShapeProto_Dimension::_internal_set_dim_param(const std::string& value) {
+
+  _impl_.dim_param_.Set(value, GetArenaForAllocation());
+}
+inline std::string* TensorShapeProto_Dimension::_internal_mutable_dim_param() {
+
+  return _impl_.dim_param_.Mutable(GetArenaForAllocation());
+}
+inline std::string* TensorShapeProto_Dimension::release_dim_param() {
+  // @@protoc_insertion_point(field_release:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension.dim_param)
+  return _impl_.dim_param_.Release();
+}
+inline void TensorShapeProto_Dimension::set_allocated_dim_param(std::string* dim_param) {
+  if (dim_param != nullptr) {
+
+  } else {
+
+  }
+  _impl_.dim_param_.SetAllocated(dim_param, GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (_impl_.dim_param_.IsDefault()) {
+    _impl_.dim_param_.Set("", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension.dim_param)
+}
+
+// -------------------------------------------------------------------
+
+// TensorShapeProto
+
+// repeated .physics_tools_nanoaod.latentfeatures.TensorShapeProto.Dimension dim = 1;
+inline int TensorShapeProto::_internal_dim_size() const {
+  return _impl_.dim_.size();
+}
+inline int TensorShapeProto::dim_size() const {
+  return _internal_dim_size();
+}
+inline void TensorShapeProto::clear_dim() {
+  _impl_.dim_.Clear();
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* TensorShapeProto::mutable_dim(int index) {
+  // @@protoc_insertion_point(field_mutable:physics_tools_nanoaod.latentfeatures.TensorShapeProto.dim)
+  return _impl_.dim_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension >*
+TensorShapeProto::mutable_dim() {
+  // @@protoc_insertion_point(field_mutable_list:physics_tools_nanoaod.latentfeatures.TensorShapeProto.dim)
+  return &_impl_.dim_;
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension& TensorShapeProto::_internal_dim(int index) const {
+  return _impl_.dim_.Get(index);
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension& TensorShapeProto::dim(int index) const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.TensorShapeProto.dim)
+  return _internal_dim(index);
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* TensorShapeProto::_internal_add_dim() {
+  return _impl_.dim_.Add();
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* TensorShapeProto::add_dim() {
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension* _add = _internal_add_dim();
+  // @@protoc_insertion_point(field_add:physics_tools_nanoaod.latentfeatures.TensorShapeProto.dim)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::TensorShapeProto_Dimension >&
+TensorShapeProto::dim() const {
+  // @@protoc_insertion_point(field_list:physics_tools_nanoaod.latentfeatures.TensorShapeProto.dim)
+  return _impl_.dim_;
+}
+
+// -------------------------------------------------------------------
+
+// TensorTypeProto
+
+// int32 elem_type = 1;
+inline void TensorTypeProto::clear_elem_type() {
+  _impl_.elem_type_ = 0;
+}
+inline int32_t TensorTypeProto::_internal_elem_type() const {
+  return _impl_.elem_type_;
+}
+inline int32_t TensorTypeProto::elem_type() const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.TensorTypeProto.elem_type)
+  return _internal_elem_type();
+}
+inline void TensorTypeProto::_internal_set_elem_type(int32_t value) {
+
+  _impl_.elem_type_ = value;
+}
+inline void TensorTypeProto::set_elem_type(int32_t value) {
+  _internal_set_elem_type(value);
+  // @@protoc_insertion_point(field_set:physics_tools_nanoaod.latentfeatures.TensorTypeProto.elem_type)
+}
+
+// .physics_tools_nanoaod.latentfeatures.TensorShapeProto shape = 2;
+inline bool TensorTypeProto::_internal_has_shape() const {
+  return this != internal_default_instance() && _impl_.shape_ != nullptr;
+}
+inline bool TensorTypeProto::has_shape() const {
+  return _internal_has_shape();
+}
+inline void TensorTypeProto::clear_shape() {
+  if (GetArenaForAllocation() == nullptr && _impl_.shape_ != nullptr) {
+    delete _impl_.shape_;
+  }
+  _impl_.shape_ = nullptr;
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto& TensorTypeProto::_internal_shape() const {
+  const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* p = _impl_.shape_;
+  return p != nullptr ? *p : reinterpret_cast<const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto&>(
+      ::physics_tools_nanoaod::latentfeatures::_TensorShapeProto_default_instance_);
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TensorShapeProto& TensorTypeProto::shape() const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.TensorTypeProto.shape)
+  return _internal_shape();
+}
+inline void TensorTypeProto::unsafe_arena_set_allocated_shape(
+    ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* shape) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.shape_);
+  }
+  _impl_.shape_ = shape;
+  if (shape) {
+
+  } else {
+
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:physics_tools_nanoaod.latentfeatures.TensorTypeProto.shape)
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* TensorTypeProto::release_shape() {
+
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* temp = _impl_.shape_;
+  _impl_.shape_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* TensorTypeProto::unsafe_arena_release_shape() {
+  // @@protoc_insertion_point(field_release:physics_tools_nanoaod.latentfeatures.TensorTypeProto.shape)
+
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* temp = _impl_.shape_;
+  _impl_.shape_ = nullptr;
+  return temp;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* TensorTypeProto::_internal_mutable_shape() {
+
+  if (_impl_.shape_ == nullptr) {
+    auto* p = CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::TensorShapeProto>(GetArenaForAllocation());
+    _impl_.shape_ = p;
+  }
+  return _impl_.shape_;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* TensorTypeProto::mutable_shape() {
+  ::physics_tools_nanoaod::latentfeatures::TensorShapeProto* _msg = _internal_mutable_shape();
+  // @@protoc_insertion_point(field_mutable:physics_tools_nanoaod.latentfeatures.TensorTypeProto.shape)
+  return _msg;
+}
+inline void TensorTypeProto::set_allocated_shape(::physics_tools_nanoaod::latentfeatures::TensorShapeProto* shape) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.shape_;
+  }
+  if (shape) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(shape);
+    if (message_arena != submessage_arena) {
+      shape = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, shape, submessage_arena);
+    }
+
+  } else {
+
+  }
+  _impl_.shape_ = shape;
+  // @@protoc_insertion_point(field_set_allocated:physics_tools_nanoaod.latentfeatures.TensorTypeProto.shape)
+}
+
+// -------------------------------------------------------------------
+
+// TypeProto
+
+// .physics_tools_nanoaod.latentfeatures.TensorTypeProto tensor_type = 1;
+inline bool TypeProto::_internal_has_tensor_type() const {
+  return this != internal_default_instance() && _impl_.tensor_type_ != nullptr;
+}
+inline bool TypeProto::has_tensor_type() const {
+  return _internal_has_tensor_type();
+}
+inline void TypeProto::clear_tensor_type() {
+  if (GetArenaForAllocation() == nullptr && _impl_.tensor_type_ != nullptr) {
+    delete _impl_.tensor_type_;
+  }
+  _impl_.tensor_type_ = nullptr;
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TensorTypeProto& TypeProto::_internal_tensor_type() const {
+  const ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* p = _impl_.tensor_type_;
+  return p != nullptr ? *p : reinterpret_cast<const ::physics_tools_nanoaod::latentfeatures::TensorTypeProto&>(
+      ::physics_tools_nanoaod::latentfeatures::_TensorTypeProto_default_instance_);
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TensorTypeProto& TypeProto::tensor_type() const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.TypeProto.tensor_type)
+  return _internal_tensor_type();
+}
+inline void TypeProto::unsafe_arena_set_allocated_tensor_type(
+    ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* tensor_type) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.tensor_type_);
+  }
+  _impl_.tensor_type_ = tensor_type;
+  if (tensor_type) {
+
+  } else {
+
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:physics_tools_nanoaod.latentfeatures.TypeProto.tensor_type)
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* TypeProto::release_tensor_type() {
+
+  ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* temp = _impl_.tensor_type_;
+  _impl_.tensor_type_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* TypeProto::unsafe_arena_release_tensor_type() {
+  // @@protoc_insertion_point(field_release:physics_tools_nanoaod.latentfeatures.TypeProto.tensor_type)
+
+  ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* temp = _impl_.tensor_type_;
+  _impl_.tensor_type_ = nullptr;
+  return temp;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* TypeProto::_internal_mutable_tensor_type() {
+
+  if (_impl_.tensor_type_ == nullptr) {
+    auto* p = CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::TensorTypeProto>(GetArenaForAllocation());
+    _impl_.tensor_type_ = p;
+  }
+  return _impl_.tensor_type_;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* TypeProto::mutable_tensor_type() {
+  ::physics_tools_nanoaod::latentfeatures::TensorTypeProto* _msg = _internal_mutable_tensor_type();
+  // @@protoc_insertion_point(field_mutable:physics_tools_nanoaod.latentfeatures.TypeProto.tensor_type)
+  return _msg;
+}
+inline void TypeProto::set_allocated_tensor_type(::physics_tools_nanoaod::latentfeatures::TensorTypeProto* tensor_type) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.tensor_type_;
+  }
+  if (tensor_type) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(tensor_type);
+    if (message_arena != submessage_arena) {
+      tensor_type = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, tensor_type, submessage_arena);
+    }
+
+  } else {
+
+  }
+  _impl_.tensor_type_ = tensor_type;
+  // @@protoc_insertion_point(field_set_allocated:physics_tools_nanoaod.latentfeatures.TypeProto.tensor_type)
+}
+
+// -------------------------------------------------------------------
+
 // ValueInfoProto
 
 // string name = 1;
@@ -554,7 +1584,7 @@ inline const std::string& ValueInfoProto::name() const {
 template <typename ArgT0, typename... ArgT>
 inline PROTOBUF_ALWAYS_INLINE
 void ValueInfoProto::set_name(ArgT0&& arg0, ArgT... args) {
- 
+
  _impl_.name_.Set(static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
   // @@protoc_insertion_point(field_set:physics_tools_nanoaod.latentfeatures.ValueInfoProto.name)
 }
@@ -567,11 +1597,11 @@ inline const std::string& ValueInfoProto::_internal_name() const {
   return _impl_.name_.Get();
 }
 inline void ValueInfoProto::_internal_set_name(const std::string& value) {
-  
+
   _impl_.name_.Set(value, GetArenaForAllocation());
 }
 inline std::string* ValueInfoProto::_internal_mutable_name() {
-  
+
   return _impl_.name_.Mutable(GetArenaForAllocation());
 }
 inline std::string* ValueInfoProto::release_name() {
@@ -580,9 +1610,9 @@ inline std::string* ValueInfoProto::release_name() {
 }
 inline void ValueInfoProto::set_allocated_name(std::string* name) {
   if (name != nullptr) {
-    
+
   } else {
-    
+
   }
   _impl_.name_.SetAllocated(name, GetArenaForAllocation());
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
@@ -591,6 +1621,96 @@ inline void ValueInfoProto::set_allocated_name(std::string* name) {
   }
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   // @@protoc_insertion_point(field_set_allocated:physics_tools_nanoaod.latentfeatures.ValueInfoProto.name)
+}
+
+// .physics_tools_nanoaod.latentfeatures.TypeProto type = 2;
+inline bool ValueInfoProto::_internal_has_type() const {
+  return this != internal_default_instance() && _impl_.type_ != nullptr;
+}
+inline bool ValueInfoProto::has_type() const {
+  return _internal_has_type();
+}
+inline void ValueInfoProto::clear_type() {
+  if (GetArenaForAllocation() == nullptr && _impl_.type_ != nullptr) {
+    delete _impl_.type_;
+  }
+  _impl_.type_ = nullptr;
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TypeProto& ValueInfoProto::_internal_type() const {
+  const ::physics_tools_nanoaod::latentfeatures::TypeProto* p = _impl_.type_;
+  return p != nullptr ? *p : reinterpret_cast<const ::physics_tools_nanoaod::latentfeatures::TypeProto&>(
+      ::physics_tools_nanoaod::latentfeatures::_TypeProto_default_instance_);
+}
+inline const ::physics_tools_nanoaod::latentfeatures::TypeProto& ValueInfoProto::type() const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.ValueInfoProto.type)
+  return _internal_type();
+}
+inline void ValueInfoProto::unsafe_arena_set_allocated_type(
+    ::physics_tools_nanoaod::latentfeatures::TypeProto* type) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.type_);
+  }
+  _impl_.type_ = type;
+  if (type) {
+
+  } else {
+
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:physics_tools_nanoaod.latentfeatures.ValueInfoProto.type)
+}
+inline ::physics_tools_nanoaod::latentfeatures::TypeProto* ValueInfoProto::release_type() {
+
+  ::physics_tools_nanoaod::latentfeatures::TypeProto* temp = _impl_.type_;
+  _impl_.type_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TypeProto* ValueInfoProto::unsafe_arena_release_type() {
+  // @@protoc_insertion_point(field_release:physics_tools_nanoaod.latentfeatures.ValueInfoProto.type)
+
+  ::physics_tools_nanoaod::latentfeatures::TypeProto* temp = _impl_.type_;
+  _impl_.type_ = nullptr;
+  return temp;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TypeProto* ValueInfoProto::_internal_mutable_type() {
+
+  if (_impl_.type_ == nullptr) {
+    auto* p = CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::TypeProto>(GetArenaForAllocation());
+    _impl_.type_ = p;
+  }
+  return _impl_.type_;
+}
+inline ::physics_tools_nanoaod::latentfeatures::TypeProto* ValueInfoProto::mutable_type() {
+  ::physics_tools_nanoaod::latentfeatures::TypeProto* _msg = _internal_mutable_type();
+  // @@protoc_insertion_point(field_mutable:physics_tools_nanoaod.latentfeatures.ValueInfoProto.type)
+  return _msg;
+}
+inline void ValueInfoProto::set_allocated_type(::physics_tools_nanoaod::latentfeatures::TypeProto* type) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.type_;
+  }
+  if (type) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(type);
+    if (message_arena != submessage_arena) {
+      type = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, type, submessage_arena);
+    }
+
+  } else {
+
+  }
+  _impl_.type_ = type;
+  // @@protoc_insertion_point(field_set_allocated:physics_tools_nanoaod.latentfeatures.ValueInfoProto.type)
 }
 
 // -------------------------------------------------------------------
@@ -637,6 +1757,46 @@ GraphProto::output() const {
   return _impl_.output_;
 }
 
+// repeated .physics_tools_nanoaod.latentfeatures.ValueInfoProto value_info = 13;
+inline int GraphProto::_internal_value_info_size() const {
+  return _impl_.value_info_.size();
+}
+inline int GraphProto::value_info_size() const {
+  return _internal_value_info_size();
+}
+inline void GraphProto::clear_value_info() {
+  _impl_.value_info_.Clear();
+}
+inline ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* GraphProto::mutable_value_info(int index) {
+  // @@protoc_insertion_point(field_mutable:physics_tools_nanoaod.latentfeatures.GraphProto.value_info)
+  return _impl_.value_info_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::ValueInfoProto >*
+GraphProto::mutable_value_info() {
+  // @@protoc_insertion_point(field_mutable_list:physics_tools_nanoaod.latentfeatures.GraphProto.value_info)
+  return &_impl_.value_info_;
+}
+inline const ::physics_tools_nanoaod::latentfeatures::ValueInfoProto& GraphProto::_internal_value_info(int index) const {
+  return _impl_.value_info_.Get(index);
+}
+inline const ::physics_tools_nanoaod::latentfeatures::ValueInfoProto& GraphProto::value_info(int index) const {
+  // @@protoc_insertion_point(field_get:physics_tools_nanoaod.latentfeatures.GraphProto.value_info)
+  return _internal_value_info(index);
+}
+inline ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* GraphProto::_internal_add_value_info() {
+  return _impl_.value_info_.Add();
+}
+inline ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* GraphProto::add_value_info() {
+  ::physics_tools_nanoaod::latentfeatures::ValueInfoProto* _add = _internal_add_value_info();
+  // @@protoc_insertion_point(field_add:physics_tools_nanoaod.latentfeatures.GraphProto.value_info)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::physics_tools_nanoaod::latentfeatures::ValueInfoProto >&
+GraphProto::value_info() const {
+  // @@protoc_insertion_point(field_list:physics_tools_nanoaod.latentfeatures.GraphProto.value_info)
+  return _impl_.value_info_;
+}
+
 // -------------------------------------------------------------------
 
 // ModelProto
@@ -670,14 +1830,14 @@ inline void ModelProto::unsafe_arena_set_allocated_graph(
   }
   _impl_.graph_ = graph;
   if (graph) {
-    
+
   } else {
-    
+
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:physics_tools_nanoaod.latentfeatures.ModelProto.graph)
 }
 inline ::physics_tools_nanoaod::latentfeatures::GraphProto* ModelProto::release_graph() {
-  
+
   ::physics_tools_nanoaod::latentfeatures::GraphProto* temp = _impl_.graph_;
   _impl_.graph_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -693,13 +1853,13 @@ inline ::physics_tools_nanoaod::latentfeatures::GraphProto* ModelProto::release_
 }
 inline ::physics_tools_nanoaod::latentfeatures::GraphProto* ModelProto::unsafe_arena_release_graph() {
   // @@protoc_insertion_point(field_release:physics_tools_nanoaod.latentfeatures.ModelProto.graph)
-  
+
   ::physics_tools_nanoaod::latentfeatures::GraphProto* temp = _impl_.graph_;
   _impl_.graph_ = nullptr;
   return temp;
 }
 inline ::physics_tools_nanoaod::latentfeatures::GraphProto* ModelProto::_internal_mutable_graph() {
-  
+
   if (_impl_.graph_ == nullptr) {
     auto* p = CreateMaybeMessage<::physics_tools_nanoaod::latentfeatures::GraphProto>(GetArenaForAllocation());
     _impl_.graph_ = p;
@@ -723,9 +1883,9 @@ inline void ModelProto::set_allocated_graph(::physics_tools_nanoaod::latentfeatu
       graph = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
           message_arena, graph, submessage_arena);
     }
-    
+
   } else {
-    
+
   }
   _impl_.graph_ = graph;
   // @@protoc_insertion_point(field_set_allocated:physics_tools_nanoaod.latentfeatures.ModelProto.graph)
@@ -734,6 +1894,14 @@ inline void ModelProto::set_allocated_graph(::physics_tools_nanoaod::latentfeatu
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

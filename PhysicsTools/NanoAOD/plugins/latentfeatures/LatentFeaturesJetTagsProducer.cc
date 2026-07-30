@@ -1,5 +1,5 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -7,21 +7,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/UnifiedParticleTransformerAK4Features.h"
 #include "DataFormats/BTauReco/interface/UnifiedParticleTransformerAK4TagInfo.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
-
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "RecoBTag/ONNXRuntime/interface/tensor_configs.h"
+#include "RecoBTag/ONNXRuntime/interface/tensor_fillers.h"
 #include "onnx_model_editor.pb.h"
 
 #include <onnxruntime/onnxruntime_cxx_api.h>
 
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 #include <fstream>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <set>
 #include <string>
@@ -36,15 +38,21 @@ using FloatArrays = std::vector<std::vector<float>>;
 constexpr char kEncoderOutput[] = "/Encoder/layers.5/Add_1_output_0";
 constexpr char kCLSOutput[] = "/CLS_EncoderLayer2/Add_1_output_0";
 constexpr char kLinearOutput[] = "/Linear/Gemm_output_0";
-constexpr char kCLSProduct[] = "UParTCLSTable";
-constexpr char kMLPProduct[] = "UParTMLPTable";
-constexpr char kEncoderProduct[] = "UParTEncodedInputsTable";
-constexpr unsigned kCLSWidth = 192;
-constexpr unsigned kLinearWidth = 24;
-
+constexpr char kIndexProduct[] = "UParTLatentTable";
+constexpr char kCLSProduct[] = "UParTCLSValuesTable";
+constexpr char kMLPProduct[] = "UParTMLPValuesTable";
+constexpr char kEncoderProduct[] = "UParTEncoderValuesTable";
 struct TensorResult {
   std::vector<float> values;
   std::vector<int64_t> shape;
+};
+
+struct LatentTables {
+  std::vector<int> jetIdx;
+  std::vector<uint32_t> clsOffset, clsLength;
+  std::vector<uint32_t> mlpOffset, mlpLength;
+  std::vector<uint32_t> encoderOffset, encoderLength;
+  std::vector<float> clsValues, mlpValues, encoderValues;
 };
 
 std::vector<char> readBinary(const std::string& path) {
@@ -65,8 +73,21 @@ std::vector<char> addGraphOutputs(const std::string& path, const std::vector<std
   for (const auto& output : graph->output())
     existing.insert(output.name());
   for (const auto& name : outputNames) {
-    if (!existing.count(name))
-      graph->add_output()->set_name(name);
+    if (existing.count(name))
+      continue;
+    const auto info = std::find_if(graph->value_info().begin(), graph->value_info().end(), [&](const auto& valueInfo) {
+      return valueInfo.name() == name;
+    });
+    if (info != graph->value_info().end()) {
+      *graph->add_output() = *info;
+    } else {
+      // UParTAK4 V01 has no intermediate value_info entries. ONNX Runtime
+      // resolves the shape after the in-memory FLOAT output is added.
+      auto* output = graph->add_output();
+      output->set_name(name);
+      output->mutable_type()->mutable_tensor_type()->set_elem_type(1);  // ONNX FLOAT
+    }
+    existing.insert(name);
   }
 
   std::string serialized;
@@ -85,8 +106,64 @@ TensorResult copyTensor(Ort::Value& output) {
   auto info = output.GetTensorTypeAndShapeInfo();
   auto shape = info.GetShape();
   const auto size = info.GetElementCount();
+  std::size_t shapeSize = 1;
+  for (const auto dimension : shape) {
+    if (dimension < 0)
+      throw cms::Exception("LatentFeaturesOutput") << "ONNX output has an unresolved dimension";
+    if (static_cast<std::size_t>(dimension) > std::numeric_limits<std::size_t>::max() / shapeSize)
+      throw cms::Exception("LatentFeaturesOutput") << "ONNX output shape is too large";
+    shapeSize *= static_cast<std::size_t>(dimension);
+  }
+  if (shapeSize != size)
+    throw cms::Exception("LatentFeaturesOutput") << "ONNX output shape does not match its element count";
   const auto* data = output.GetTensorData<float>();
   return {std::vector<float>(data, data + size), std::move(shape)};
+}
+
+uint32_t checkedSize(std::size_t size, const char* name) {
+  if (size > std::numeric_limits<uint32_t>::max())
+    throw cms::Exception("LatentFeaturesOutput") << name << " exceeds the uint32_t FlatTable index range";
+  return static_cast<uint32_t>(size);
+}
+
+void appendValues(const TensorResult& tensor,
+                  std::vector<float>& values,
+                  uint32_t& offset,
+                  uint32_t& length,
+                  const char* name) {
+  offset = checkedSize(values.size(), name);
+  if (tensor.values.empty()) {
+    length = 0;
+    return;
+  }
+  values.insert(values.end(), tensor.values.begin(), tensor.values.end());
+  length = checkedSize(tensor.values.size(), name);
+  checkedSize(values.size(), name);
+}
+
+std::size_t validateFixedVector(const TensorResult& tensor, const char* name) {
+  if (tensor.shape.empty() || tensor.shape.back() <= 0)
+    throw cms::Exception("LatentFeaturesOutput") << name << " output has no resolved final dimension";
+  std::size_t leading = 1;
+  for (std::size_t i = 0; i + 1 < tensor.shape.size(); ++i) {
+    if (tensor.shape[i] <= 0 || static_cast<std::size_t>(tensor.shape[i]) > std::numeric_limits<std::size_t>::max() / leading)
+      throw cms::Exception("LatentFeaturesOutput") << name << " output has an invalid shape";
+    leading *= static_cast<std::size_t>(tensor.shape[i]);
+  }
+  const auto width = static_cast<std::size_t>(tensor.shape.back());
+  if (leading != 1 || tensor.values.size() != width)
+    throw cms::Exception("LatentFeaturesOutput") << name << " output is not one fixed-length vector: shape "
+                                                   << tensor.shape.size() << "D with " << tensor.values.size()
+                                                   << " values";
+  return width;
+}
+
+void validateEncoder(const TensorResult& tensor) {
+  if (tensor.shape.size() < 2 || tensor.shape.front() != 1 || tensor.shape.back() <= 0)
+    throw cms::Exception("LatentFeaturesOutput") << "Expected encoder shape [1, ..., width]";
+  const auto width = static_cast<std::size_t>(tensor.shape.back());
+  if (tensor.values.size() % width != 0)
+    throw cms::Exception("LatentFeaturesOutput") << "Final particle encoder output is not divisible by its final dimension";
 }
 
 class LatentFeaturesSession {
@@ -108,10 +185,7 @@ public:
           memoryInfo, const_cast<float*>(data[i].data()), data[i].size(), shapes[i].data(), shapes[i].size()));
     }
 
-    std::vector<const char*> inputNamesC;
-    std::vector<const char*> outputNamesC;
-    inputNamesC.reserve(inputNames.size());
-    outputNamesC.reserve(outputNames.size());
+    std::vector<const char*> inputNamesC, outputNamesC;
     for (const auto& name : inputNames)
       inputNamesC.push_back(name.c_str());
     for (const auto& name : outputNames)
@@ -148,11 +222,8 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-
   void prepareInputs(const btagbtvdeep::UnifiedParticleTransformerAK4Features&);
-  void makeInputs(const btagbtvdeep::UnifiedParticleTransformerAK4Features&);
-  void putTable(edm::Event&, const std::string&, const std::string&, std::vector<int>&, std::vector<float>&) const;
-  void putEncodedTable(edm::Event&, std::vector<int>&, std::vector<int>&, std::vector<float>&) const;
+  void putLatentTables(edm::Event&, LatentTables&) const;
 
   const edm::EDGetTokenT<TagInfoCollection> src_;
   const std::vector<std::string> flavNames_;
@@ -162,33 +233,14 @@ private:
   const bool saveMLP_;
   const bool saveInputEncoder_;
   const StringCutObjectSelector<reco::Jet> jetCut_;
-
-  enum InputIndexes {
-    kChargedCandidates = 0,
-    kLostTracks = 1,
-    kNeutralCandidates = 2,
-    kVertices = 3,
-    kChargedCandidates4Vec = 4,
-    kLostTracks4Vec = 5,
-    kNeutralCandidates4Vec = 6,
-    kVertices4Vec = 7
-  };
-  unsigned nCpf_ = 1;
-  unsigned nLt_ = 1;
-  unsigned nNpf_ = 1;
-  unsigned nSv_ = 1;
-  constexpr static unsigned nFeaturesCpf_ = 25;
-  constexpr static unsigned nFeaturesLt_ = 18;
-  constexpr static unsigned nFeaturesNpf_ = 8;
-  constexpr static unsigned nFeaturesSv_ = 14;
-  constexpr static unsigned nPairwiseFeatures_ = 4;
+  unsigned nCpf_ = 1, nLt_ = 1, nNpf_ = 1, nSv_ = 1;
   FloatArrays data_;
   std::vector<std::vector<int64_t>> inputShapes_;
   std::vector<std::string> outputNames_;
 };
 
 LatentFeaturesJetTagsProducer::LatentFeaturesJetTagsProducer(const edm::ParameterSet& config,
-                                                                     const LatentFeaturesSession*)
+                                                             const LatentFeaturesSession*)
     : src_(consumes<TagInfoCollection>(config.getParameter<edm::InputTag>("src"))),
       flavNames_(config.getParameter<std::vector<std::string>>("flav_names")),
       inputNames_(config.getParameter<std::vector<std::string>>("input_names")),
@@ -197,16 +249,17 @@ LatentFeaturesJetTagsProducer::LatentFeaturesJetTagsProducer(const edm::Paramete
       saveMLP_(config.getParameter<bool>("MLP")),
       saveInputEncoder_(config.getParameter<bool>("InputEncoder")),
       jetCut_(config.getParameter<std::string>("jet_cut")) {
-  outputNames_.push_back("softmax");
+  outputNames_.emplace_back("softmax");
   if (saveInputEncoder_)
-    outputNames_.push_back(kEncoderOutput);
+    outputNames_.emplace_back(kEncoderOutput);
   if (saveCLS_)
-    outputNames_.push_back(kCLSOutput);
+    outputNames_.emplace_back(kCLSOutput);
   if (saveMLP_)
-    outputNames_.push_back(kLinearOutput);
+    outputNames_.emplace_back(kLinearOutput);
 
   for (const auto& name : flavNames_)
     produces<JetTagCollection>(name);
+  produces<nanoaod::FlatTable>(kIndexProduct);
   if (saveCLS_)
     produces<nanoaod::FlatTable>(kCLSProduct);
   if (saveMLP_)
@@ -254,10 +307,8 @@ void LatentFeaturesJetTagsProducer::produce(edm::Event& event, const edm::EventS
       outputTags.emplace_back(std::make_unique<JetTagCollection>());
   }
 
-  std::vector<int> clsJetIdx, mlpJetIdx, encodedJetIdx, encodedParticleIdx;
-  std::vector<float> clsValues, mlpValues, encodedValues;
+  LatentTables tables;
   int selectedJetIndex = 0;
-
   for (const auto& tagInfo : *tagInfos) {
     std::vector<float> standardOutput(flavNames_.size(), -1.f);
     TensorResult encoder, cls, mlp;
@@ -273,8 +324,14 @@ void LatentFeaturesJetTagsProducer::produce(edm::Event& event, const edm::EventS
       if (saveMLP_)
         mlp = std::move(tensors[outputIndex++]);
       if (standardOutput.size() != flavNames_.size())
-        throw cms::Exception("LatentFeaturesOutput") << "Expected " << flavNames_.size() << " standard UParT outputs, got "
-                                             << standardOutput.size();
+        throw cms::Exception("LatentFeaturesOutput") << "Expected " << flavNames_.size()
+                                                       << " standard UParT outputs, got " << standardOutput.size();
+      if (saveCLS_)
+        validateFixedVector(cls, "CLS");
+      if (saveMLP_)
+        validateFixedVector(mlp, "MLP");
+      if (saveInputEncoder_)
+        validateEncoder(encoder);
     }
 
     const auto& jetRef = tagInfo.jet();
@@ -282,146 +339,97 @@ void LatentFeaturesJetTagsProducer::produce(edm::Event& event, const edm::EventS
       (*outputTags[i])[jetRef] = standardOutput[i];
 
     const bool selected = jetRef.isNonnull() && jetCut_(*jetRef);
-    if (selected && tagInfo.features().is_filled) {
-      if (saveCLS_) {
-        if (cls.values.size() != kCLSWidth)
-          throw cms::Exception("LatentFeaturesOutput") << "Expected a 192-element CLS vector, got " << cls.values.size();
-        for (float value : cls.values) {
-          clsJetIdx.push_back(selectedJetIndex);
-          clsValues.push_back(value);
-        }
-      }
-      if (saveMLP_) {
-        if (mlp.values.size() != kLinearWidth)
-          throw cms::Exception("LatentFeaturesOutput") << "Expected a 24-element Linear vector, got " << mlp.values.size();
-        for (float value : mlp.values) {
-          mlpJetIdx.push_back(selectedJetIndex);
-          mlpValues.push_back(value);
-        }
-      }
-      if (saveInputEncoder_) {
-        if (encoder.values.size() % kCLSWidth != 0)
-          throw cms::Exception("LatentFeaturesOutput") << "Final particle encoder output is not divisible by 192";
-        const auto nParticles = encoder.values.size() / kCLSWidth;
-        for (std::size_t particle = 0; particle < nParticles; ++particle) {
-          for (unsigned feature = 0; feature < kCLSWidth; ++feature) {
-            encodedJetIdx.push_back(selectedJetIndex);
-            encodedParticleIdx.push_back(static_cast<int>(particle));
-            encodedValues.push_back(encoder.values[particle * kCLSWidth + feature]);
-          }
-        }
-      }
-    }
-    if (selected)
+    if (selected) {
+      tables.jetIdx.push_back(selectedJetIndex);
+      if (saveCLS_)
+        appendValues(cls, tables.clsValues, tables.clsOffset.emplace_back(), tables.clsLength.emplace_back(), "CLS");
+      if (saveMLP_)
+        appendValues(mlp, tables.mlpValues, tables.mlpOffset.emplace_back(), tables.mlpLength.emplace_back(), "MLP");
+      if (saveInputEncoder_)
+        appendValues(encoder,
+                     tables.encoderValues,
+                     tables.encoderOffset.emplace_back(),
+                     tables.encoderLength.emplace_back(),
+                     "encoder");
       ++selectedJetIndex;
+    }
   }
 
   for (std::size_t i = 0; i < flavNames_.size(); ++i)
     event.put(std::move(outputTags[i]), flavNames_[i]);
-  if (saveCLS_)
-    putTable(event, kCLSProduct, "JetUParTCLS", clsJetIdx, clsValues);
-  if (saveMLP_)
-    putTable(event, kMLPProduct, "JetUParTMLP", mlpJetIdx, mlpValues);
-  if (saveInputEncoder_)
-    putEncodedTable(event, encodedJetIdx, encodedParticleIdx, encodedValues);
+  putLatentTables(event, tables);
 }
 
-void LatentFeaturesJetTagsProducer::putTable(edm::Event& event,
-                                                const std::string& product,
-                                                const std::string& tableName,
-                                                std::vector<int>& jetIndices,
-                                                std::vector<float>& values) const {
-  auto table = std::make_unique<nanoaod::FlatTable>(values.size(), tableName, false);
-  table->addColumn<int>("jetIdx", jetIndices, "Index of the corresponding Jet row");
-  table->addColumn<float>("value", values, "UParT intermediate value", 10);
-  event.put(std::move(table), product);
-}
+void LatentFeaturesJetTagsProducer::putLatentTables(edm::Event& event, LatentTables& tables) const {
+  auto index = std::make_unique<nanoaod::FlatTable>(tables.jetIdx.size(), "JetUParTLatent", false);
+  index->addColumn<int>("jetIdx", tables.jetIdx, "Index of the corresponding Jet row");
+  if (saveCLS_) {
+    index->addColumn<uint32_t>("clsOffset", tables.clsOffset, "Offset into JetUParTCLSValues");
+    index->addColumn<uint32_t>("clsLength", tables.clsLength, "Length in JetUParTCLSValues");
+  }
+  if (saveMLP_) {
+    index->addColumn<uint32_t>("mlpOffset", tables.mlpOffset, "Offset into JetUParTMLPValues");
+    index->addColumn<uint32_t>("mlpLength", tables.mlpLength, "Length in JetUParTMLPValues");
+  }
+  if (saveInputEncoder_) {
+    index->addColumn<uint32_t>("encoderOffset", tables.encoderOffset, "Offset into JetUParTEncoderValues");
+    index->addColumn<uint32_t>("encoderLength", tables.encoderLength, "Length in JetUParTEncoderValues");
+  }
+  event.put(std::move(index), kIndexProduct);
 
-void LatentFeaturesJetTagsProducer::putEncodedTable(edm::Event& event,
-                                                        std::vector<int>& jetIndices,
-                                                        std::vector<int>& particleIndices,
-                                                        std::vector<float>& values) const {
-  auto table = std::make_unique<nanoaod::FlatTable>(values.size(), "JetUParTEncodedInputs", false);
-  table->addColumn<int>("jetIdx", jetIndices, "Index of the corresponding Jet row");
-  table->addColumn<int>("particleIdx", particleIndices, "Particle index within the jet");
-  table->addColumn<float>("value", values, "Final UParT particle encoder value", 10);
-  event.put(std::move(table), kEncoderProduct);
+  if (saveCLS_) {
+    auto values = std::make_unique<nanoaod::FlatTable>(tables.clsValues.size(), "JetUParTCLSValues", false);
+    values->addColumn<float>("value", tables.clsValues, "Selected CLS encoder representation; width is read from ONNX Runtime shape metadata.", 10);
+    event.put(std::move(values), kCLSProduct);
+  }
+  if (saveMLP_) {
+    auto values = std::make_unique<nanoaod::FlatTable>(tables.mlpValues.size(), "JetUParTMLPValues", false);
+    values->addColumn<float>("value", tables.mlpValues, "Selected pre-softmax Linear/Gemm representation; width is read from ONNX Runtime shape metadata.", 10);
+    event.put(std::move(values), kMLPProduct);
+  }
+  if (saveInputEncoder_) {
+    auto values = std::make_unique<nanoaod::FlatTable>(tables.encoderValues.size(), "JetUParTEncoderValues", false);
+    values->addColumn<float>(
+        "value", tables.encoderValues, "Selected per-token encoder representation, flattened in ONNX row-major order.", 10);
+    event.put(std::move(values), kEncoderProduct);
+  }
 }
 
 void LatentFeaturesJetTagsProducer::prepareInputs(
     const btagbtvdeep::UnifiedParticleTransformerAK4Features& features) {
   if (useDynamicAxes_) {
-    nCpf_ = std::clamp<unsigned>(features.c_pf_features.size(), 1, 29);
-    nLt_ = std::clamp<unsigned>(features.lt_features.size(), 1, 5);
-    nNpf_ = std::clamp<unsigned>(features.n_pf_features.size(), 1, 25);
-    nSv_ = std::clamp<unsigned>(features.sv_features.size(), 1, 5);
+    nCpf_ = std::clamp<unsigned>(features.c_pf_features.size(), 1, UparT::n_cpf_accept);
+    nLt_ = std::clamp<unsigned>(features.lt_features.size(), 1, UparT::n_lt_accept);
+    nNpf_ = std::clamp<unsigned>(features.n_pf_features.size(), 1, UparT::n_npf_accept);
+    nSv_ = std::clamp<unsigned>(features.sv_features.size(), 1, UparT::n_sv_accept);
   } else {
-    nCpf_ = 29;
-    nLt_ = 5;
-    nNpf_ = 25;
-    nSv_ = 5;
+    nCpf_ = UparT::n_cpf_accept;
+    nLt_ = UparT::n_lt_accept;
+    nNpf_ = UparT::n_npf_accept;
+    nSv_ = UparT::n_sv_accept;
   }
 
-  const std::vector<unsigned> sizes = {nCpf_ * nFeaturesCpf_, nLt_ * nFeaturesLt_, nNpf_ * nFeaturesNpf_,
-                                       nSv_ * nFeaturesSv_, nCpf_ * nPairwiseFeatures_, nLt_ * nPairwiseFeatures_,
-                                       nNpf_ * nPairwiseFeatures_, nSv_ * nPairwiseFeatures_};
   data_.clear();
-  for (const auto size : sizes)
-    data_.emplace_back(size, 0.f);
-  inputShapes_ = {{1, nCpf_, nFeaturesCpf_},
-                  {1, nLt_, nFeaturesLt_},
-                  {1, nNpf_, nFeaturesNpf_},
-                  {1, nSv_, nFeaturesSv_},
-                  {1, nCpf_, nPairwiseFeatures_},
-                  {1, nLt_, nPairwiseFeatures_},
-                  {1, nNpf_, nPairwiseFeatures_},
-                  {1, nSv_, nPairwiseFeatures_}};
-  makeInputs(features);
-}
+  inputShapes_.clear();
+  const std::vector<unsigned> counts{nCpf_, nLt_, nNpf_, nSv_, nCpf_, nLt_, nNpf_, nSv_};
+  for (unsigned i = 0; i < UparT::kEnd; ++i) {
+    data_.emplace_back(counts[i] * UparT::N_InputFeatures.at(i), 0.f);
+    inputShapes_.push_back({1, static_cast<int64_t>(counts[i]), static_cast<int64_t>(UparT::N_InputFeatures.at(i))});
+  }
 
-void LatentFeaturesJetTagsProducer::makeInputs(
-    const btagbtvdeep::UnifiedParticleTransformerAK4Features& features) {
-  auto fill = [&](unsigned group, std::size_t index, const auto& values) {
-    std::copy(values.begin(), values.end(), data_[group].begin() + index);
-  };
-
-  for (std::size_t i = 0; i < std::min(features.c_pf_features.size(), static_cast<std::size_t>(nCpf_)); ++i) {
-    const auto& f = features.c_pf_features[i];
-    fill(kChargedCandidates, i * nFeaturesCpf_, std::vector<float>{
-                                                   f.btagPf_trackEtaRel, f.btagPf_trackPtRel, f.btagPf_trackPPar,
-                                                   f.btagPf_trackDeltaR, f.btagPf_trackPParRatio, f.btagPf_trackSip2dVal,
-                                                   f.btagPf_trackSip2dSig, f.btagPf_trackSip3dVal, f.btagPf_trackSip3dSig,
-                                                   f.btagPf_trackJetDistVal, f.ptrel, f.drminsv, f.vtx_ass, f.puppiw,
-                                                   f.chi2, f.quality, f.charge, f.dz, f.btagPf_trackDecayLen,
-                                                   f.HadFrac, f.CaloFrac, f.pdgID, f.lostInnerHits,
-                                                   f.numberOfPixelHits, f.numberOfStripHits});
-    fill(kChargedCandidates4Vec, i * nPairwiseFeatures_,
-         std::vector<float>{f.px, f.py, f.pz, f.e});
-  }
-  for (std::size_t i = 0; i < std::min(features.lt_features.size(), static_cast<std::size_t>(nLt_)); ++i) {
-    const auto& f = features.lt_features[i];
-    fill(kLostTracks, i * nFeaturesLt_, std::vector<float>{
-                                              f.btagPf_trackEtaRel, f.btagPf_trackPtRel, f.btagPf_trackPPar,
-                                              f.btagPf_trackDeltaR, f.btagPf_trackPParRatio, f.btagPf_trackSip2dVal,
-                                              f.btagPf_trackSip2dSig, f.btagPf_trackSip3dVal, f.btagPf_trackSip3dSig,
-                                              f.btagPf_trackJetDistVal, f.drminsv, f.charge, f.puppiw, f.chi2,
-                                              f.quality, f.lostInnerHits, f.numberOfPixelHits, f.numberOfStripHits});
-    fill(kLostTracks4Vec, i * nPairwiseFeatures_, std::vector<float>{f.pt, f.eta, f.phi, f.e});
-  }
-  for (std::size_t i = 0; i < std::min(features.n_pf_features.size(), static_cast<std::size_t>(nNpf_)); ++i) {
-    const auto& f = features.n_pf_features[i];
-    fill(kNeutralCandidates, i * nFeaturesNpf_,
-         std::vector<float>{f.ptrel, f.etarel, f.phirel, f.deltaR, f.isGamma, f.hadFrac, f.drminsv, f.puppiw});
-    fill(kNeutralCandidates4Vec, i * nPairwiseFeatures_,
-         std::vector<float>{f.px, f.py, f.pz, f.e});
-  }
-  for (std::size_t i = 0; i < std::min(features.sv_features.size(), static_cast<std::size_t>(nSv_)); ++i) {
-    const auto& f = features.sv_features[i];
-    fill(kVertices, i * nFeaturesSv_, std::vector<float>{
-                                           f.pt, f.deltaR, f.mass, f.etarel, f.phirel, f.ntracks, f.chi2, f.normchi2,
-                                           f.dxy, f.dxysig, f.d3d, f.d3dsig, f.costhetasvpv, f.enratio});
-    fill(kVertices4Vec, i * nPairwiseFeatures_, std::vector<float>{f.px, f.py, f.pz, f.e});
-  }
+  const float* start = nullptr;
+  const auto nCpf = std::min(features.c_pf_features.size(), static_cast<std::size_t>(nCpf_));
+  const auto nLt = std::min(features.lt_features.size(), static_cast<std::size_t>(nLt_));
+  const auto nNpf = std::min(features.n_pf_features.size(), static_cast<std::size_t>(nNpf_));
+  const auto nSv = std::min(features.sv_features.size(), static_cast<std::size_t>(nSv_));
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kChargedCandidates, features.c_pf_features, nCpf, start, 0);
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kLostTracks, features.lt_features, nLt, start, 0);
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kNeutralCandidates, features.n_pf_features, nNpf, start, 0);
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kVertices, features.sv_features, nSv, start, 0);
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kChargedCandidates4Vec, features.c_pf_features, nCpf, start, 0);
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kLostTracks4Vec, features.lt_features, nLt, start, 0);
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kNeutralCandidates4Vec, features.n_pf_features, nNpf, start, 0);
+  btagbtvdeep::UParT_tensor_filler(data_, UparT::kVertices4Vec, features.sv_features, nSv, start, 0);
 }
 
 DEFINE_FWK_MODULE(LatentFeaturesJetTagsProducer);

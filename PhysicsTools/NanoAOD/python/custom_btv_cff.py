@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import Var
-from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import finalJetsPuppi, jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData
+from PhysicsTools.NanoAOD.jetsAK4_Puppi_cff import jetPuppiTable, jetPuppiCorrFactorsNano, updatedJetsPuppi, updatedJetsPuppiWithUserData
 from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable, subJetTable
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import addToProcessAndTask, getPatAlgosToolsTask
@@ -739,20 +739,6 @@ def BTVCustomNanoAOD_allPF(process):
     BTVCustomNanoAOD_base(process, btvNano_switch)
     return process
 
-# Keep the 2023 PFNano switch values while using the CMSSW 15 implementation.
-nanoAOD_allPF_switch = False
-nanoAOD_addbtagAK4_switch = True
-nanoAOD_addbtagAK8_switch = False
-
-def PrepBTVCustomNanoAOD_MC_all(process):
-    btvNano_switch = cms.PSet(
-        btvNano_addAK4_switch = cms.untracked.bool(nanoAOD_addbtagAK4_switch),
-        btvNano_addAK8_switch = cms.untracked.bool(nanoAOD_addbtagAK8_switch),
-        btvNano_addallPF_switch = cms.untracked.bool(True),
-        TaggerInput = cms.string("btvSF")
-    )
-    return BTVCustomNanoAOD_base(process, btvNano_switch)
-
 def BTVCustomNanoAOD_LatentFeatures(process, CLS=True, MLP=True, InputEncoder=True):
     """Run the standard AK4 BTV customization and expose selected UParT layers."""
     process = BTVCustomNanoAOD_base(process, cms.PSet(
@@ -777,7 +763,7 @@ def BTVCustomNanoAOD_LatentFeatures(process, CLS=True, MLP=True, InputEncoder=Tr
         CLS=cms.bool(CLS),
         MLP=cms.bool(MLP),
         InputEncoder=cms.bool(InputEncoder),
-        jet_cut=finalJetsPuppi.cut,
+        jet_cut=cms.string("pt > 15"),
     )
     if not getPatAlgosToolsTask(process).replace(old, new):
         raise RuntimeError("The positive AK4 UParT producer was not found in patAlgosToolsTask")

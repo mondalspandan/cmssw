@@ -5,12 +5,31 @@ package physics_tools_nanoaod.latentfeatures;
 // Minimal wire-compatible subset of the ONNX protobuf. Unknown fields are
 // retained by protobuf, so the complete model remains untouched apart from
 // the requested GraphProto outputs.
+message TensorShapeProto {
+  message Dimension {
+    int64 dim_value = 1;
+    string dim_param = 2;
+  }
+  repeated Dimension dim = 1;
+}
+
+message TensorTypeProto {
+  int32 elem_type = 1;
+  TensorShapeProto shape = 2;
+}
+
+message TypeProto {
+  TensorTypeProto tensor_type = 1;
+}
+
 message ValueInfoProto {
   string name = 1;
+  TypeProto type = 2;
 }
 
 message GraphProto {
   repeated ValueInfoProto output = 12;
+  repeated ValueInfoProto value_info = 13;
 }
 
 message ModelProto {
